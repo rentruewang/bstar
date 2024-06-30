@@ -8,8 +8,7 @@
 
 unsigned total_area(const std::pair<int, int> dim);
 
-unsigned total_hpwl(const std::vector<pin>& pin_list,
-                    const std::vector<net>& net_list);
+unsigned total_hpwl(const std::vector<net>& net_list);
 
 double total_cost(const double area, const double hpwl, const double alpha);
 

@@ -114,7 +114,7 @@ void pin::height(unsigned h) {
     h_ = h;
 }
 
-pair<unsigned, unsigned> pin::get_dim() const {
+pair<unsigned, unsigned> pin::dim() const {
     return make_pair(w_, h_);
 }
 

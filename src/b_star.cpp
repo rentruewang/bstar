@@ -22,11 +22,11 @@ b_star::b_star(vector<pin>& pin_list, unsigned width, unsigned height)
     pin::filter_area_nonzero(pin_list, index_list);
 
     for (unsigned idx = 0; idx < index_list.size(); ++idx) {
-        pin& pin = pin_list[index_list[idx]];
-        if (pin.height() > pin.width()) {
-            pin.rotate();
+        pin& p = pin_list[index_list[idx]];
+        if (p.height() > p.width()) {
+            p.rotate();
         }
-        assert(pin.get_width() >= pin.get_height());
+        assert(p.width() >= p.height());
     }
 
     sort(index_list.rbegin(), index_list.rend(),
@@ -48,8 +48,8 @@ b_star::b_star(vector<pin>& pin_list, unsigned width, unsigned height)
         pin& pin = pin_list[self];
         assert(pin.area_nonzero());
 
-        assert(pin.get_left() < 0);
-        assert(pin.get_right() < 0);
+        assert(pin.left() < 0);
+        assert(pin.right() < 0);
         if (r == index_list.size()) {
             pin.left(index_list[l]);
         } else if (r < index_list.size()) {
@@ -96,15 +96,13 @@ static void overlap_recursive(unsigned root, const vector<pin>& pin_list) {
 
     if ((id = root_node.left()) >= 0) {
         const pin& left_node = pin_list[id];
-        assert(root_node.get_xpos() + (int)root_node.get_width() ==
-               left_node.get_xpos());
+        assert(root_node.x() + (int)root_node.width() == left_node.x());
     }
 
     if ((id = root_node.right()) >= 0) {
         const pin& right_node = pin_list[id];
-        assert(root_node.get_xpos() == right_node.get_xpos());
-        assert(root_node.get_ypos() + (int)root_node.get_height() <=
-               right_node.get_ypos());
+        assert(root_node.x() == right_node.x());
+        assert(root_node.y() + (int)root_node.height() <= right_node.y());
     }
 
     if (root_node.left() >= 0) {
@@ -218,7 +216,7 @@ static void update_recursive(vector<pin>& pin_list,
     const pin& root_node = pin_list[root];
 
     auto& bnd = contour[affected];
-    assert(bnd == Boundary(root_node));
+    assert(bnd == boundary(root_node));
 
     int left = root_node.left(), right = root_node.right();
 
@@ -239,7 +237,7 @@ pair<int, int> b_star::update() const {
     int root = get_root();
     pin& root_node = pin_list[root];
     root_node.loc(0, 0);
-    contour.push_back(std::move(boundary(root_node)));
+    contour.emplace_back(root_node);
     update_recursive(pin_list, root, contour, 0);
 
     int X, Y, i;
@@ -280,7 +278,7 @@ void b_star::swap(const unsigned i, const unsigned j) {
     pin &pin_i = plist[nodes_[i]], &pin_j = plist[nodes_[j]];
 
     assert(i != j);
-    assert(pin_i.get_name() != pin_j.get_name());
+    assert(pin_i.name() != pin_j.name());
 
     std::swap(pin_i.width(), pin_j.width());
     std::swap(pin_i.height(), pin_j.height());
@@ -376,12 +374,12 @@ pair<pair<unsigned, bool>, pair<unsigned, bool>> b_star::random_delete_insert(
         const pin& root_pin = plist[root];
         int left = root_pin.left(), right = root_pin.right();
 
-        assert(!pin.leaf());
+        assert(!root_pin.leaf());
 
         bool both_fine = (left >= 0) && (right >= 0);
 
         if (left < 0 || (both_fine && (rand() % 2))) {
-            assert(right >= 0 && right < (int)nodes.size());
+            assert(right >= 0 && right < (int)nodes_.size());
             const pin& right_node = plist[right];
 
             if (right_node.leaf()) {

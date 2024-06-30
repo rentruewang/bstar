@@ -97,7 +97,7 @@ void save_file(ofstream& file,
 
     const unsigned width = dimension.first, height = dimension.second;
     const unsigned area = total_area(dimension);
-    const unsigned hpwl = total_hpwl(pin_list, net_list);
+    const unsigned hpwl = total_hpwl(net_list);
     const double cost = total_cost(area, hpwl, alpha);
 
     file << cost << "\n"

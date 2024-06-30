@@ -56,8 +56,8 @@ unsigned net::hpwl() const {
         if (halt) {
             x = pin.x();
             y = pin.y();
-            assert(pin.get_width() == 0);
-            assert(pin.get_height() == 0);
+            assert(pin.width() == 0);
+            assert(pin.height() == 0);
         } else {
             center = get_center(pin_list[connected_pins_[i]]);
             x = center.first;

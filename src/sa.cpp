@@ -7,15 +7,13 @@
 
 using namespace std;
 
-static constexpr double epsilon = 1e-7;
-
 unsigned total_area(const pair<int, int> dim) {
     assert(dim.first >= 0);
     assert(dim.second >= 0);
     return (unsigned)dim.first * (unsigned)dim.second;
 }
 
-unsigned total_hpwl(const vector<pin>& pin_list, const vector<net>& net_list) {
+unsigned total_hpwl(const vector<net>& net_list) {
     unsigned idx, hpwl;
     for (idx = hpwl = 0; idx < net_list.size(); ++idx) {
         const net& net = net_list[idx];
@@ -34,9 +32,7 @@ static void backup(const vector<pin>& pin_list,
     best = vector<pin>(pin_list.begin(), pin_list.begin() + size);
 }
 
-static void restore(vector<pin>& pin_list,
-                    const vector<pin>& best,
-                    const unsigned size) {
+static void restore(vector<pin>& pin_list, const vector<pin>& best) {
     copy(best.begin(), best.end(), pin_list.begin());
 }
 
@@ -57,10 +53,6 @@ static unsigned random_cdf(double a, double b, double c) {
     } else {
         return 3;
     }
-}
-
-static bool is_close(double a, double b) {
-    return (a - b) < epsilon && (b - a) < epsilon;
 }
 
 pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
@@ -86,7 +78,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
     printf("initial = (%d, %d)\n", initial.first, initial.second);
 
     const unsigned init_width = initial.first, init_height = initial.second;
-    const unsigned init_hpwl = total_hpwl(pin_list, net_list);
+    const unsigned init_hpwl = total_hpwl(net_list);
     const double init_temp = 1. / log(1. / P);
 
     auto cost_function = cost{static_cast<double>(init_width * init_height),
@@ -155,7 +147,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
             const auto plan = tree.update();
             tree.check();
 
-            const unsigned wire_len = total_hpwl(pin_list, net_list);
+            const unsigned wire_len = total_hpwl(net_list);
 
             const bool width_okay = (plan.first <= (int)width),
                        height_okay = (plan.second <= (int)height),
@@ -260,7 +252,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
            cost_function.width(), cost_function.height());
 
     printf("solution found: %d\n", has_accepted);
-    restore(pin_list, best_solution, size);
+    restore(pin_list, best_solution);
 
     if ((best_width > best_height) != (width > height)) {
         tree.flip();

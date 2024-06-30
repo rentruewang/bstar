@@ -35,7 +35,7 @@ class pin {
     void width(unsigned w);
     void height(unsigned h);
 
-    std::pair<unsigned, unsigned> get_dim() const;
+    std::pair<unsigned, unsigned> dim() const;
     void set_dim(unsigned w, unsigned h);
 
     const std::string& name() const;
