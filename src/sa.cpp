@@ -10,12 +10,12 @@
 
 using namespace std;
 
-unsigned total_area(const pair<int, int> dim) {
-    return (unsigned)dim.first * (unsigned)dim.second;
+size_t total_area(const pair<int, int> dim) {
+    return (size_t)dim.first * (size_t)dim.second;
 }
 
-unsigned total_hpwl(const vector<net>& net_list) {
-    unsigned idx, hpwl;
+size_t total_hpwl(const vector<net>& net_list) {
+    size_t idx, hpwl;
     for (idx = hpwl = 0; idx < net_list.size(); ++idx) {
         const net& net = net_list[idx];
         hpwl += net.hpwl();
@@ -29,7 +29,7 @@ double total_cost(const double area, const double hpwl, const double alpha) {
 
 static void backup(const vector<pin>& pin_list,
                    vector<pin>& best,
-                   const unsigned size) {
+                   const size_t size) {
     best = vector<pin>(pin_list.begin(), pin_list.begin() + size);
 }
 
@@ -59,22 +59,22 @@ static mutation_type random_cdf(double a, double b, double c) {
     return mutation_type::mirror;
 }
 
-pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
+pair<int, int> sim_anneal(pair<size_t, size_t> boundary,
                           b_star& tree,
                           vector<pin>& pin_list,
                           const vector<net>& net_list,
-                          pair<unsigned, unsigned> iter_info,
-                          unsigned num_blocks,
-                          unsigned episodes,
-                          unsigned high_temp,
+                          pair<size_t, size_t> iter_info,
+                          size_t num_blocks,
+                          size_t episodes,
+                          size_t high_temp,
                           double alpha,
                           double ratio,
                           double P,
                           double C) {
-    const unsigned width = boundary.first, height = boundary.second;
-    const unsigned epochs = iter_info.first, interrupt = iter_info.second;
-    const unsigned size = tree.nodes().size();
-    const unsigned net_upper_bound = (width + height) * net_list.size();
+    const size_t width = boundary.first, height = boundary.second;
+    const size_t epochs = iter_info.first, interrupt = iter_info.second;
+    const size_t size = tree.nodes().size();
+    const size_t net_upper_bound = (width + height) * net_list.size();
 
     // Setup the different strategies.
     permuter permute{tree};
@@ -86,8 +86,8 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
     printf("initial = (%d, %d)\n", initial.first, initial.second);
 
-    unsigned init_width = initial.first, init_height = initial.second;
-    unsigned init_hpwl = total_hpwl(net_list);
+    size_t init_width = initial.first, init_height = initial.second;
+    size_t init_hpwl = total_hpwl(net_list);
     double init_temp = 1. / log(1. / P);
 
     auto cost_func = cost{static_cast<double>(init_width * init_height),
@@ -111,8 +111,8 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
                        ? num_blocks * init_temp / (iteration * C)
                        : num_blocks * init_temp / iteration;
 
-        unsigned idx;
-        unsigned score_rdi, score_rp, score_rs, score_rm;
+        size_t idx;
+        size_t score_rdi, score_rp, score_rs, score_rm;
         double rdi_rp, rp_rs, rs_rm;
 
         for (idx = 0, rdi_rp = 1. / 4., rp_rs = 2. / 4., rs_rm = 3. / 4.;
@@ -139,7 +139,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
             auto plan{tree.update()};
 
-            unsigned wire_len = total_hpwl(net_list);
+            size_t wire_len = total_hpwl(net_list);
 
             bool width_okay = plan.first <= (int)width;
             bool height_okay = plan.second <= (int)height;

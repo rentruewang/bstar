@@ -9,15 +9,15 @@ class net {
    public:
     net();
     net(net&& net);
-    net(std::vector<unsigned>&& conn, const std::vector<pin>& all_pins);
+    net(std::vector<size_t>&& conn, const std::vector<pin>& all_pins);
 
     net& operator=(net&& net);
 
-    unsigned at(unsigned index) const;
+    size_t at(size_t index) const;
 
-    unsigned hpwl() const;
+    size_t hpwl() const;
 
    private:
-    std::vector<unsigned> connected_pins_;
+    std::vector<size_t> connected_pins_;
     const std::vector<pin>* all_pins_;
 };

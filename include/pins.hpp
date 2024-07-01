@@ -9,37 +9,30 @@ class pin {
     pin();
     pin(const pin& pin);
     pin(pin&& pin);
-    pin(unsigned i, unsigned j, bool b, const std::string& n);
+    pin(size_t i, size_t j, bool b, const std::string& n);
 
     pin& operator=(const pin& pin);
     pin& operator=(pin&& pin);
 
-    int x() const;
-    int y() const;
+    void reset();
 
     int& x();
     int& y();
 
-    void x(int x);
-    void y(int y);
+    int x() const;
+    int y() const;
 
     std::pair<int, int> loc() const;
-    void loc(int x, int y);
 
-    unsigned width() const;
-    unsigned height() const;
+    size_t width() const;
+    size_t height() const;
 
-    unsigned& width();
-    unsigned& height();
+    size_t& width();
+    size_t& height();
 
-    void width(unsigned w);
-    void height(unsigned h);
-
-    std::pair<unsigned, unsigned> dim() const;
-    void set_dim(unsigned w, unsigned h);
+    std::pair<size_t, size_t> dim() const;
 
     const std::string& name() const;
-    void set_name(std::string&& n);
 
     std::string& name();
 
@@ -64,11 +57,11 @@ class pin {
     bool leaf() const;
 
     static void filter_area_nonzero(std::vector<pin>& pin_list,
-                                    std::vector<unsigned>& block_list);
+                                    std::vector<size_t>& block_list);
 
    private:
     int x_, y_;
-    unsigned w_, h_;
+    size_t w_, h_;
     int l_, r_;
     std::string name_;
 };

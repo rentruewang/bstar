@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 class cost {
    public:
     cost();
@@ -28,29 +30,28 @@ class cost {
 
     void rotate();
 
-    void alpha(bool up, unsigned rounds);
-    void width(bool up, unsigned rounds);
-    void height(bool up, unsigned rounds);
+    void alpha(bool up, size_t rounds);
+    void width(bool up, size_t rounds);
+    void height(bool up, size_t rounds);
 
-    double operator()(unsigned width,
-                      unsigned width_norm,
-                      unsigned height,
-                      unsigned height_norm,
-                      unsigned hpwl,
-                      unsigned net_norm,
+    double operator()(size_t width,
+                      size_t width_norm,
+                      size_t height,
+                      size_t height_norm,
+                      size_t hpwl,
+                      size_t net_norm,
                       bool accepted) const;
 
-    double operator()(unsigned width,
-                      unsigned width_norm,
-                      unsigned height,
-                      unsigned height_norm,
-                      unsigned hpwl,
-                      unsigned net_norm,
+    double operator()(size_t width,
+                      size_t width_norm,
+                      size_t height,
+                      size_t height_norm,
+                      size_t hpwl,
+                      size_t net_norm,
                       bool accepted,
-                      unsigned rounds);
+                      size_t rounds);
 
    private:
     double area_, hpwl_;
-
     double alpha_, width_, height_;
 };

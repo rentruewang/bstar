@@ -9,13 +9,13 @@
 
 using namespace std;
 
-pair<unsigned, unsigned> read_pin_file(ifstream& file,
-                                       vector<pin>& pin_list,
-                                       unordered_map<string, unsigned>& pin_map,
-                                       unsigned& num_blocks) {
+pair<size_t, size_t> read_pin_file(ifstream& file,
+                                   vector<pin>& pin_list,
+                                   unordered_map<string, size_t>& pin_map,
+                                   size_t& num_blocks) {
     auto buffer = string();
 
-    unsigned out_width, out_height;
+    size_t out_width, out_height;
 
     file >> buffer >> out_width >> out_height;
     assert(buffer == "Outline:");
@@ -23,22 +23,22 @@ pair<unsigned, unsigned> read_pin_file(ifstream& file,
     file >> buffer >> num_blocks;
     assert(buffer == "NumBlocks:");
 
-    unsigned num_terminals;
+    size_t num_terminals;
     file >> buffer >> num_terminals;
     assert(buffer == "NumTerminals:");
 
     auto name = string();
 
-    unsigned width, height;
-    for (unsigned i = 0; i < num_blocks; ++i) {
+    size_t width, height;
+    for (size_t i = 0; i < num_blocks; ++i) {
         file >> name >> width >> height;
         pin_map[name] = pin_list.size();
         pin_list.emplace_back(width, height, true, name);
     }
     assert(pin_map.size() == num_blocks);
 
-    unsigned horiz, verti;
-    for (unsigned i = 0; i < num_terminals; ++i) {
+    size_t horiz, verti;
+    for (size_t i = 0; i < num_terminals; ++i) {
         file >> name >> buffer >> horiz >> verti;
         assert(buffer == "terminal");
         pin_map[name] = pin_list.size();
@@ -51,7 +51,7 @@ pair<unsigned, unsigned> read_pin_file(ifstream& file,
         assert(pin_list[i].area_nonzero());
     }
 
-    for (int i = num_blocks; (unsigned)i < num_blocks + num_terminals; ++i) {
+    for (int i = num_blocks; (size_t)i < num_blocks + num_terminals; ++i) {
         assert(!pin_list[i].area_nonzero());
     }
 
@@ -61,20 +61,20 @@ pair<unsigned, unsigned> read_pin_file(ifstream& file,
 void read_net_file(ifstream& file,
                    const vector<pin>& pin_list,
                    vector<net>& net_list,
-                   const unordered_map<string, unsigned>& pin_map) {
+                   const unordered_map<string, size_t>& pin_map) {
     auto buffer = string();
 
-    unsigned num_nets;
+    size_t num_nets;
 
     file >> buffer >> num_nets;
     assert(buffer == "NumNets:");
 
-    for (unsigned i = 0, num_degree; i < num_nets; ++i) {
+    for (size_t i = 0, num_degree; i < num_nets; ++i) {
         file >> buffer >> num_degree;
         assert(buffer == "NetDegree:");
-        vector<unsigned> connected{};
+        vector<size_t> connected{};
         connected.reserve(num_degree);
-        for (unsigned j = 0; j < num_degree; ++j) {
+        for (size_t j = 0; j < num_degree; ++j) {
             auto pin_name = string();
             file >> pin_name;
             connected.push_back(pin_map.at(pin_name));
@@ -95,11 +95,11 @@ void save_file(ofstream& file,
                pair<int, int> dimension,
                const vector<pin>& pin_list,
                const vector<net>& net_list) {
-    const unsigned size = pin_list.size();
+    const size_t size = pin_list.size();
 
-    const unsigned width = dimension.first, height = dimension.second;
-    const unsigned area = total_area(dimension);
-    const unsigned hpwl = total_hpwl(net_list);
+    const size_t width = dimension.first, height = dimension.second;
+    const size_t area = total_area(dimension);
+    const size_t hpwl = total_hpwl(net_list);
     const double cost = total_cost(area, hpwl, alpha);
 
     file << cost << "\n"
@@ -108,7 +108,7 @@ void save_file(ofstream& file,
          << width << " " << height << "\n"
          << difftime(time(NULL), start_time) << "\n";
 
-    for (unsigned i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         const pin& pin = pin_list[i];
         const string& name = pin.name();
 

@@ -83,7 +83,7 @@ static double square(double v) {
     return v * v;
 }
 
-static void update(double& reference, double target, unsigned rounds) {
+static void update(double& reference, double target, size_t rounds) {
     double coeff = 1. / (double)rounds;
     double remaining = 1. - coeff;
 
@@ -93,24 +93,24 @@ static void update(double& reference, double target, unsigned rounds) {
     reference = remaining * reference + coeff * target;
 }
 
-void cost::alpha(bool up, unsigned rounds) {
+void cost::alpha(bool up, size_t rounds) {
     update(alpha_, (double)up, rounds);
 }
 
-void cost::width(bool up, unsigned rounds) {
+void cost::width(bool up, size_t rounds) {
     update(width_, ((double)up) / 2., rounds);
 }
 
-void cost::height(bool up, unsigned rounds) {
+void cost::height(bool up, size_t rounds) {
     update(height_, ((double)up) / 2., rounds);
 }
 
-double cost::operator()(unsigned x,
-                        unsigned xn,
-                        unsigned y,
-                        unsigned yn,
-                        unsigned w,
-                        unsigned wn,
+double cost::operator()(size_t x,
+                        size_t xn,
+                        size_t y,
+                        size_t yn,
+                        size_t w,
+                        size_t wn,
                         bool accepted) const {
     double value = (alpha_ * (double)(x * y) / (double)(xn * yn) +
                     (1. - alpha_) * ((double)w / (double)wn));
@@ -124,14 +124,14 @@ double cost::operator()(unsigned x,
     return value;
 }
 
-double cost::operator()(unsigned x,
-                        unsigned xn,
-                        unsigned y,
-                        unsigned yn,
-                        unsigned w,
-                        unsigned wn,
+double cost::operator()(size_t x,
+                        size_t xn,
+                        size_t y,
+                        size_t yn,
+                        size_t w,
+                        size_t wn,
                         bool accepted,
-                        unsigned num) {
+                        size_t num) {
     update(area_, x * y, num);
     update(hpwl_, w, num);
     return operator()(x, xn, y, yn, w, wn, accepted);

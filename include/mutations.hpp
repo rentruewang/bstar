@@ -25,7 +25,7 @@ class permuter final : public mutation {
     void mutate();
 
    private:
-    unsigned idx_;
+    size_t idx_;
 };
 
 class swapper final : public mutation {
@@ -36,7 +36,7 @@ class swapper final : public mutation {
     void mutate();
 
    private:
-    unsigned i_, j_;
+    size_t i_, j_;
 };
 
 class delete_inserter final : public mutation {
@@ -59,5 +59,5 @@ class mirrorer final : public mutation {
     void mutate();
 
    private:
-    unsigned i_;
+    size_t i_;
 };

@@ -2,6 +2,8 @@
 
 #include <assert.h>
 
+#include <utility>
+
 using namespace std;
 
 pin::pin() : x_(0), y_(0), w_(0), h_(0), l_(-1), r_(-1), name_("") {}
@@ -24,14 +26,16 @@ pin::pin(pin&& pin)
       r_(pin.r_),
       name_(std::move(pin.name_)) {}
 
-pin::pin(unsigned i, unsigned j, bool b, const string& n)
+pin::pin(size_t i, size_t j, bool b, const string& n)
     : l_(-1), r_(-1), name_(n) {
     if (b) {
-        loc(0, 0);
-        set_dim(i, j);
+        x_ = y_ = 0;
+        w_ = i;
+        h_ = j;
     } else {
-        loc(i, j);
-        set_dim(0, 0);
+        x_ = i;
+        y_ = j;
+        w_ = h_ = 0;
     }
 }
 
@@ -73,62 +77,32 @@ int& pin::y() {
     return y_;
 }
 
-void pin::x(int x) {
-    x_ = x;
-}
-
-void pin::y(int y) {
-    y_ = y;
-}
-
 pair<int, int> pin::loc() const {
-    return make_pair(x_, y_);
+    return {x_, y_};
 }
 
-void pin::loc(int a, int b) {
-    x(a);
-    y(b);
-}
-
-unsigned pin::width() const {
+size_t pin::width() const {
     return w_;
 }
 
-unsigned pin::height() const {
+size_t pin::height() const {
     return h_;
 }
 
-unsigned& pin::width() {
+size_t& pin::width() {
     return w_;
 }
 
-unsigned& pin::height() {
+size_t& pin::height() {
     return h_;
 }
 
-void pin::width(unsigned w) {
-    w_ = w;
-}
-
-void pin::height(unsigned h) {
-    h_ = h;
-}
-
-pair<unsigned, unsigned> pin::dim() const {
-    return make_pair(w_, h_);
-}
-
-void pin::set_dim(unsigned w, unsigned h) {
-    width(w);
-    height(h);
+pair<size_t, size_t> pin::dim() const {
+    return {w_, h_};
 }
 
 const string& pin::name() const {
     return name_;
-}
-
-void pin::set_name(string&& n) {
-    name_ = std::move(n);
 }
 
 string& pin::name() {
@@ -137,8 +111,7 @@ string& pin::name() {
 
 void pin::rotate() {
     assert(area_nonzero());
-    unsigned w = width(), h = height();
-    set_dim(h, w);
+    std::swap(w_, h_);
 }
 
 int pin::left() const {
@@ -190,9 +163,9 @@ bool pin::leaf() const {
 }
 
 void pin::filter_area_nonzero(vector<pin>& pin_list,
-                              vector<unsigned>& block_list) {
+                              vector<size_t>& block_list) {
     assert(block_list.size() == 0);
-    for (unsigned i = 0; i < pin_list.size(); ++i) {
+    for (size_t i = 0; i < pin_list.size(); ++i) {
         if (pin_list[i].area_nonzero()) {
             block_list.push_back(i);
         }
