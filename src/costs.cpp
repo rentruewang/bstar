@@ -42,35 +42,35 @@ double cost::height() const {
     return height_;
 }
 
-void cost::set_area(double a) {
+void cost::area(double a) {
     area_ = a;
 }
 
-void cost::set_hpwl(double h) {
+void cost::hpwl(double h) {
     hpwl_ = h;
 }
 
-void cost::set_alpha(double a) {
+void cost::alpha(double a) {
     alpha_ = a;
 }
 
-void cost::set_width(double w) {
+void cost::width(double w) {
     width_ = w;
 }
 
-void cost::set_height(double h) {
+void cost::height(double h) {
     height_ = h;
 }
 
-double& cost::get_alpha_mut() {
+double& cost::alpha() {
     return alpha_;
 }
 
-double& cost::get_width_mut() {
+double& cost::width() {
     return width_;
 }
 
-double& cost::get_height_mut() {
+double& cost::height() {
     return height_;
 }
 
@@ -82,7 +82,7 @@ static double square(double v) {
     return v * v;
 }
 
-static void update_variable(double& reference, double target, unsigned rounds) {
+static void update(double& reference, double target, unsigned rounds) {
     double coeff = 1. / (double)rounds;
     double remaining = 1. - coeff;
 
@@ -92,16 +92,16 @@ static void update_variable(double& reference, double target, unsigned rounds) {
     reference = remaining * reference + coeff * target;
 }
 
-void cost::update_alpha(bool up, unsigned rounds) {
-    update_variable(alpha_, (double)up, rounds);
+void cost::alpha(bool up, unsigned rounds) {
+    update(alpha_, (double)up, rounds);
 }
 
-void cost::update_width(bool up, unsigned rounds) {
-    update_variable(width_, ((double)up) / 2., rounds);
+void cost::width(bool up, unsigned rounds) {
+    update(width_, ((double)up) / 2., rounds);
 }
 
-void cost::update_height(bool up, unsigned rounds) {
-    update_variable(height_, ((double)up) / 2., rounds);
+void cost::height(bool up, unsigned rounds) {
+    update(height_, ((double)up) / 2., rounds);
 }
 
 double cost::operator()(unsigned x,
@@ -131,7 +131,7 @@ double cost::operator()(unsigned x,
                         unsigned wn,
                         bool accepted,
                         unsigned num) {
-    update_variable(area_, x * y, num);
-    update_variable(hpwl_, w, num);
+    update(area_, x * y, num);
+    update(hpwl_, w, num);
     return operator()(x, xn, y, yn, w, wn, accepted);
 }

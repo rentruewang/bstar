@@ -15,22 +15,22 @@ class cost {
     double width() const;
     double height() const;
 
-    void set_area(double area);
-    void set_hpwl(double hpwl);
+    void area(double area);
+    void hpwl(double hpwl);
 
-    void set_alpha(double alpha);
-    void set_width(double width);
-    void set_height(double height);
+    void alpha(double alpha);
+    void width(double width);
+    void height(double height);
 
-    double& get_alpha_mut();
-    double& get_width_mut();
-    double& get_height_mut();
+    double& alpha();
+    double& width();
+    double& height();
 
     void rotate();
 
-    void update_alpha(bool up, unsigned rounds);
-    void update_width(bool up, unsigned rounds);
-    void update_height(bool up, unsigned rounds);
+    void alpha(bool up, unsigned rounds);
+    void width(bool up, unsigned rounds);
+    void height(bool up, unsigned rounds);
 
     double operator()(unsigned width,
                       unsigned width_norm,

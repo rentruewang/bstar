@@ -17,7 +17,6 @@ class b_star {
     std::vector<unsigned>& nodes();
     const std::vector<unsigned>& nodes() const;
 
-    void check() const;
     std::pair<int, int> update() const;
 
     void flip();

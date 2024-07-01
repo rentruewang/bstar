@@ -80,45 +80,10 @@ const vector<unsigned>& b_star::nodes() const {
     return nodes_;
 }
 
-static void overlap_recursive(unsigned root, const vector<pin>& pin_list) {
-    const pin& root_node = pin_list[root];
-    int id;
-
-    if ((id = root_node.left()) >= 0) {
-        const pin& left_node = pin_list[id];
-        assert(root_node.x() + (int)root_node.width() == left_node.x());
-    }
-
-    if ((id = root_node.right()) >= 0) {
-        const pin& right_node = pin_list[id];
-        assert(root_node.x() == right_node.x());
-        assert(root_node.y() + (int)root_node.height() <= right_node.y());
-    }
-
-    if (root_node.left() >= 0) {
-        overlap_recursive(root_node.left(), pin_list);
-    }
-
-    if (root_node.right() >= 0) {
-        overlap_recursive(root_node.right(), pin_list);
-    }
-}
-
-void b_star::check() const {
-#ifdef NDEBUG
-    return;
-#endif
-    overlap_recursive(root(), pin_list());
-}
-
 static void remove_overlap(pin& pin,
                            deque<boundary>& contour,
                            const unsigned index) {
-    assert(index <= contour.size());
-    assert(contour.size());
-
     if (pin.x() >= contour[contour.size() - 1].right()) {
-        assert(index == contour.size());
         pin.y(0);
         return;
     }
@@ -136,14 +101,9 @@ static void remove_overlap(pin& pin,
         }
     }
 
-    assert(until <= contour.size());
-
     if (until == contour.size()) {
         contour.erase(contour.begin() + index, contour.end());
     } else {
-        assert(until < contour.size());
-        assert(contour[until].right() >= total_width);
-
         if (contour[until].top() > max) {
             max = contour[until].top();
         }

@@ -75,28 +75,26 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
     const unsigned net_upper_bound = (width + height) * net_list.size();
 
     // Setup the different strategies.
-    mutation* strategy = nullptr;
     permuter permute{tree};
     swapper swap{tree};
     delete_inserter delete_insert{tree};
     mirrorer mirror{tree};
 
     auto initial = tree.update();
-    tree.check();
 
     printf("initial = (%d, %d)\n", initial.first, initial.second);
 
-    const unsigned init_width = initial.first, init_height = initial.second;
-    const unsigned init_hpwl = total_hpwl(net_list);
-    const double init_temp = 1. / log(1. / P);
+    unsigned init_width = initial.first, init_height = initial.second;
+    unsigned init_hpwl = total_hpwl(net_list);
+    double init_temp = 1. / log(1. / P);
 
-    auto cost_function = cost{static_cast<double>(init_width * init_height),
-                              static_cast<double>(init_hpwl), alpha, ratio};
+    auto cost_func = cost{static_cast<double>(init_width * init_height),
+                          static_cast<double>(init_hpwl), alpha, ratio};
 
     vector<pin> best_solution, best_accepted_solution;
 
-    double best_cost = cost_function(init_width, width, init_height, height,
-                                     init_hpwl, net_upper_bound, false);
+    double best_cost = cost_func(init_width, width, init_height, height,
+                                 init_hpwl, net_upper_bound, false);
     int best_width = init_width, best_height = init_height;
 
     backup(pin_list, best_solution, size);
@@ -106,14 +104,10 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
     for (has_accepted = false, iteration = -(high_temp * num_blocks);
          iteration < (int)(epochs * num_blocks); ++iteration) {
-        double T;
-        if (iteration < 0) {
-            T = init_temp;
-        } else if (iteration < (int)interrupt) {
-            T = num_blocks * init_temp / (iteration * C);
-        } else {
-            T = num_blocks * init_temp / iteration;
-        }
+        double T = (iteration < 0) ? init_temp
+                   : (iteration < (int)interrupt)
+                       ? num_blocks * init_temp / (iteration * C)
+                       : num_blocks * init_temp / iteration;
 
         unsigned idx;
         unsigned score_rdi, score_rp, score_rs, score_rm;
@@ -122,8 +116,9 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
         for (idx = 0, rdi_rp = 1. / 4., rp_rs = 2. / 4., rs_rm = 3. / 4.;
              idx < episodes; ++idx) {
             score_rdi = score_rp = score_rs = score_rm = 0;
-            auto mut_type = random_cdf(rdi_rp, rp_rs, rs_rm);
-            switch (mut_type) {
+
+            mutation* strategy = nullptr;
+            switch (random_cdf(rdi_rp, rp_rs, rs_rm)) {
                 case mutation_type::delete_insert:
                     strategy = &delete_insert;
                     break;
@@ -140,14 +135,13 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
             strategy->random();
 
-            const auto plan = tree.update();
-            tree.check();
+            auto plan{tree.update()};
 
-            const unsigned wire_len = total_hpwl(net_list);
+            unsigned wire_len = total_hpwl(net_list);
 
-            const bool width_okay = (plan.first <= (int)width),
-                       height_okay = (plan.second <= (int)height);
-            const bool either_okay =
+            bool width_okay = plan.first <= (int)width;
+            bool height_okay = plan.second <= (int)height;
+            bool either_okay =
                 (width_okay && height_okay) ||
                 (plan.first <= (int)height && plan.second <= (int)width);
 
@@ -162,13 +156,12 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
                 best_width = best_height = -1;
             }
 
-            const double cost =
-                cost_function(plan.first, width, plan.second, height, wire_len,
-                              net_upper_bound, has_accepted);
+            double cost = cost_func(plan.first, width, plan.second, height,
+                                    wire_len, net_upper_bound, has_accepted);
 
             bool acpt;
 
-            if (acpt = (!has_accepted || either_okay); acpt) {
+            if (acpt = !has_accepted || either_okay; acpt) {
                 if (cost <= best_cost) {
                     best_cost = cost;
                     best_width = plan.first;
@@ -185,8 +178,8 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
                 strategy->revert();
             }
 
-            cost_function.update_width(!width_okay, episodes);
-            cost_function.update_height(!height_okay, episodes);
+            cost_func.width(!width_okay, episodes);
+            cost_func.height(!height_okay, episodes);
 
             double total_score = score_rdi + score_rp + score_rs + score_rm;
             rdi_rp = (double)score_rdi / total_score;
@@ -194,8 +187,8 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
             rs_rm = rp_rs + (double)score_rs / total_score;
         }
     }
-    printf("a=%lf, w=%lf, h=%lf\n", cost_function.alpha(),
-           cost_function.width(), cost_function.height());
+    printf("a=%lf, w=%lf, h=%lf\n", cost_func.alpha(), cost_func.width(),
+           cost_func.height());
 
     printf("solution found: %d\n", has_accepted);
     restore(pin_list, best_solution);

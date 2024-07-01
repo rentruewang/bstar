@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include "b_star.hpp"
 
 class mutation {
@@ -23,7 +22,6 @@ class permuter final : public mutation {
     permuter(b_star& tree) noexcept;
 
     void setup_random();
-    void setup_revert();
     void mutate();
 
    private:
@@ -35,7 +33,6 @@ class swapper final : public mutation {
     swapper(b_star& tree) noexcept;
 
     void setup_random();
-    void setup_revert();
     void mutate();
 
    private:
@@ -47,7 +44,6 @@ class delete_inserter final : public mutation {
     delete_inserter(b_star& tree) noexcept;
 
     void setup_random();
-    void setup_revert();
     void mutate();
 
    private:
@@ -60,7 +56,6 @@ class mirrorer final : public mutation {
     mirrorer(b_star& tree) noexcept;
 
     void setup_random();
-    void setup_revert();
     void mutate();
 
    private:
