@@ -35,10 +35,10 @@ int boundary::top() const {
     return top_;
 }
 
-void boundary::set_right(int r) {
+void boundary::right(int r) {
     this->right_ = r;
 }
 
-void boundary::set_top(int y) {
+void boundary::top(int y) {
     this->top_ = y;
 }

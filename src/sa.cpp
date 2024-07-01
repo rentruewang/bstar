@@ -1,8 +1,10 @@
 #include "sa.hpp"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+
 #include "costs.hpp"
 #include "mutations.hpp"
 

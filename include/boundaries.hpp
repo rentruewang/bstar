@@ -16,8 +16,8 @@ class boundary {
     int right() const;
     int top() const;
 
-    void set_right(int r);
-    void set_top(int y);
+    void right(int r);
+    void top(int y);
 
    private:
     int right_, top_;

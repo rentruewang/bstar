@@ -1,8 +1,10 @@
 #include "io.hpp"
-#include <assert.h>
-#include <time.h>
+
 #include <algorithm>
+#include <cassert>
+#include <ctime>
 #include <vector>
+
 #include "sa.hpp"
 
 using namespace std;

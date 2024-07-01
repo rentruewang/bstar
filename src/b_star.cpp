@@ -1,8 +1,10 @@
 #include "b_star.hpp"
-#include <assert.h>
-#include <stdlib.h>
+
 #include <algorithm>
+#include <cassert>
+#include <cstdlib>
 #include <deque>
+
 #include "boundaries.hpp"
 
 using namespace std;

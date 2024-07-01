@@ -1,4 +1,5 @@
 #include "mutations.hpp"
+
 #include <cstdlib>
 
 mutation::mutation(b_star& tree) noexcept : tree_(tree) {}

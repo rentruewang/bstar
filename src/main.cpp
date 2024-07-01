@@ -1,8 +1,9 @@
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
 #include <string>
+
 #include "b_star.hpp"
 #include "io.hpp"
 #include "nets.hpp"

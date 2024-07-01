@@ -1,7 +1,6 @@
 #include "nets.hpp"
-#include <assert.h>
-#include <memory>
-#include <unordered_set>
+
+#include <cassert>
 #include <utility>
 
 using namespace std;

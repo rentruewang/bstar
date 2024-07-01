@@ -1,7 +1,8 @@
 #include "costs.hpp"
-#include <assert.h>
-#include <math.h>
+
 #include <algorithm>
+#include <cassert>
+#include <cmath>
 
 using namespace std;
 
