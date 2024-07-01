@@ -7,13 +7,15 @@
 
 class b_star {
    public:
-    b_star(std::vector<pin>& plist, unsigned width, unsigned height);
+    b_star(std::vector<pin>& plist);
 
-    unsigned get_size() const;
-    unsigned get_root() const;
+    unsigned root() const;
 
     std::vector<pin>& pin_list();
     const std::vector<pin>& pin_list() const;
+
+    std::vector<unsigned>& nodes();
+    const std::vector<unsigned>& nodes() const;
 
     void check() const;
     std::pair<int, int> update() const;

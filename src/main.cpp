@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <algorithm>
 #include <string>
 #include "b_star.hpp"
 #include "io.hpp"
@@ -10,7 +9,7 @@
 #include "pins.hpp"
 #include "sa.hpp"
 
-int main(int argc, char const* argv[]) {
+int main(int, char const* argv[]) {
     using namespace std;
 
     time_t start = time(NULL);
@@ -41,7 +40,7 @@ int main(int argc, char const* argv[]) {
     printf("blocks = %lu, nets = %lu, dimension= (%u, %u)\n", pin_map.size(),
            net_list.size(), width, height);
 
-    b_star tree{pin_list, width, height};
+    b_star tree{pin_list};
 
     constexpr double init_prob = .999, constant = 3.;
     constexpr unsigned iterations = 10000, interrupt = iterations / constant;
@@ -51,9 +50,9 @@ int main(int argc, char const* argv[]) {
 
     // static_assert(init_prob <= 1. - 1. / (double)episodes);
 
-    auto floorplan =
-        sim_anneal(dimension, tree, pin_list, net_list, iter_info, num_blocks,
-                   episodes, burning_stage, alpha, ratio, init_prob, constant);
+    auto floorplan{sim_anneal(dimension, tree, pin_list, net_list, iter_info,
+                              num_blocks, episodes, burning_stage, alpha, ratio,
+                              init_prob, constant)};
 
     printf("result = (%d, %d)\n", floorplan.first, floorplan.second);
 

@@ -7,10 +7,6 @@ boundary::boundary(const pin& pin)
 
 boundary::boundary(const boundary& bnd) : right_(bnd.right_), top_(bnd.top_) {}
 
-boundary::boundary(boundary&& bnd) : right_(bnd.right_), top_(bnd.top_) {
-    bnd.right_ = bnd.top_ = 0;
-}
-
 boundary& boundary::operator=(const boundary& bnd) {
     right_ = bnd.right_;
     top_ = bnd.top_;
@@ -27,7 +23,7 @@ boundary& boundary::operator=(boundary&& bnd) {
     return *this;
 }
 
-bool boundary::operator==(const boundary& bnd) {
+bool boundary::operator==(const boundary& bnd) const {
     return right_ == bnd.right_ && top_ == bnd.top_;
 }
 

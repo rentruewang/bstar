@@ -1,15 +1,14 @@
 #include "sa.hpp"
-#include <assert.h>
-#include <math.h>
-#include <stdlib.h>
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstdlib>
 #include "costs.hpp"
+#include "mutations.hpp"
 
 using namespace std;
 
 unsigned total_area(const pair<int, int> dim) {
-    assert(dim.first >= 0);
-    assert(dim.second >= 0);
     return (unsigned)dim.first * (unsigned)dim.second;
 }
 
@@ -36,23 +35,26 @@ static void restore(vector<pin>& pin_list, const vector<pin>& best) {
     copy(best.begin(), best.end(), pin_list.begin());
 }
 
-static unsigned random_cdf(double a, double b, double c) {
-    constexpr double rand_range = (double)RAND_MAX + 1.;
+enum class mutation_type { delete_insert, permute, swap, mirror };
 
-    double rand_double = (double)rand() / (double)rand_range;
-    assert(b >= a);
-    assert(c >= b);
-    assert(rand_double >= 0. && rand_double < 1.);
+static mutation_type random_cdf(double a, double b, double c) {
+    constexpr double rand_range = RAND_MAX + 1.;
+
+    double rand_double = (double)rand() / rand_range;
 
     if (rand_double < a) {
-        return 0;
-    } else if (rand_double < b) {
-        return 1;
-    } else if (rand_double < c) {
-        return 2;
-    } else {
-        return 3;
+        return mutation_type::delete_insert;
     }
+
+    if (rand_double < b) {
+        return mutation_type::permute;
+    }
+
+    if (rand_double < c) {
+        return mutation_type::swap;
+    }
+
+    return mutation_type::mirror;
 }
 
 pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
@@ -69,8 +71,15 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
                           double C) {
     const unsigned width = boundary.first, height = boundary.second;
     const unsigned epochs = iter_info.first, interrupt = iter_info.second;
-    const unsigned size = tree.get_size();
+    const unsigned size = tree.nodes().size();
     const unsigned net_upper_bound = (width + height) * net_list.size();
+
+    // Setup the different strategies.
+    mutation* strategy = nullptr;
+    permuter permute{tree};
+    swapper swap{tree};
+    delete_inserter delete_insert{tree};
+    mirrorer mirror{tree};
 
     auto initial = tree.update();
     tree.check();
@@ -83,13 +92,6 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
     auto cost_function = cost{static_cast<double>(init_width * init_height),
                               static_cast<double>(init_hpwl), alpha, ratio};
-
-    for (unsigned idx = 0; idx < size; ++idx) {
-        assert(pin_list[idx].area_nonzero());
-    }
-    for (unsigned idx = size; idx < pin_list.size(); ++idx) {
-        assert(!pin_list[idx].area_nonzero());
-    }
 
     vector<pin> best_solution, best_accepted_solution;
 
@@ -114,35 +116,29 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
         }
 
         unsigned idx;
-        unsigned area_accepted, width_accepted, height_accepted;
         unsigned score_rdi, score_rp, score_rs, score_rm;
         double rdi_rp, rp_rs, rs_rm;
 
-        for (idx = area_accepted = width_accepted = height_accepted = 0,
-            rdi_rp = 1. / 4., rp_rs = 2. / 4., rs_rm = 3. / 4.;
+        for (idx = 0, rdi_rp = 1. / 4., rp_rs = 2. / 4., rs_rm = 3. / 4.;
              idx < episodes; ++idx) {
             score_rdi = score_rp = score_rs = score_rm = 0;
-
-            pair<pair<unsigned, bool>, pair<unsigned, bool>> rdi;
-            pair<unsigned, unsigned> rs;
-            unsigned rp = 0, rm = 0;
-
-            const char number = random_cdf(rdi_rp, rp_rs, rs_rm);
-            switch (number) {
-                case 0:
-                    rdi = tree.random_delete_insert();
+            auto mut_type = random_cdf(rdi_rp, rp_rs, rs_rm);
+            switch (mut_type) {
+                case mutation_type::delete_insert:
+                    strategy = &delete_insert;
                     break;
-                case 1:
-                    rp = tree.random_permute();
+                case mutation_type::permute:
+                    strategy = &permute;
                     break;
-                case 2:
-                    rs = tree.random_swap();
+                case mutation_type::swap:
+                    strategy = &swap;
                     break;
-                default:
-                    assert(number == 3);
-                    rm = tree.random_mirror();
+                case mutation_type::mirror:
+                    strategy = &mirror;
                     break;
             }
+
+            strategy->random();
 
             const auto plan = tree.update();
             tree.check();
@@ -150,19 +146,12 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
             const unsigned wire_len = total_hpwl(net_list);
 
             const bool width_okay = (plan.first <= (int)width),
-                       height_okay = (plan.second <= (int)height),
-                       area_okay = (plan.first * plan.second <
-                                    (int)width * (int)height);
+                       height_okay = (plan.second <= (int)height);
             const bool either_okay =
                 (width_okay && height_okay) ||
                 (plan.first <= (int)height && plan.second <= (int)width);
 
-            assert(plan.first >= 0);
-            assert(plan.second >= 0);
-
             if (!has_accepted && either_okay) {
-                assert(area_okay);
-
                 printf(
                     "size: (%d, %d) type: (%d, %d)\n", plan.first, plan.second,
                     (width_okay && height_okay),
@@ -179,7 +168,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
             bool acpt;
 
-            if (!has_accepted || either_okay) {
+            if (acpt = (!has_accepted || either_okay); acpt) {
                 if (cost <= best_cost) {
                     best_cost = cost;
                     best_width = plan.first;
@@ -190,63 +179,20 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
                     acpt = ((double)rand() / (double)RAND_MAX) <
                            expf((best_cost - cost) / T);
                 }
-            } else {
-                acpt = false;
             }
 
-            if (acpt) {
-                switch (number) {
-                    case 0:
-                        ++score_rdi;
-                        break;
-                    case 1:
-                        ++score_rp;
-                        break;
-                    case 2:
-                        ++score_rs;
-                        break;
-                    default:
-                        assert(number == 3);
-                        ++score_rm;
-                        break;
-                }
-            } else {
-                switch (number) {
-                    case 0:
-                        tree.revert_delete_insert(rdi);
-                        break;
-                    case 1:
-                        tree.revert_permute(rp);
-                        break;
-                    case 2:
-                        tree.revert_swap(rs);
-                        break;
-                    default:
-                        assert(number == 3);
-                        tree.revert_mirror(rm);
-                        break;
-                }
+            if (!acpt) {
+                strategy->revert();
             }
-
-            if (width_okay)
-                ++width_accepted;
-            if (height_okay)
-                ++height_accepted;
-            if (area_okay)
-                ++area_accepted;
 
             cost_function.update_width(!width_okay, episodes);
             cost_function.update_height(!height_okay, episodes);
+
+            double total_score = score_rdi + score_rp + score_rs + score_rm;
+            rdi_rp = (double)score_rdi / total_score;
+            rp_rs = rdi_rp + (double)score_rp / total_score;
+            rs_rm = rp_rs + (double)score_rs / total_score;
         }
-
-        // cost_function.update_alpha(!area_accepted, epochs);
-        // cost_function.update_width(!width_accepted, epochs);
-        // cost_function.update_height(!height_accepted, epochs);
-
-        double total_score = score_rdi + score_rp + score_rs + score_rm;
-        rdi_rp = (double)score_rdi / total_score;
-        rp_rs = rdi_rp + (double)score_rp / total_score;
-        rs_rm = rp_rs + (double)score_rs / total_score;
     }
     printf("a=%lf, w=%lf, h=%lf\n", cost_function.alpha(),
            cost_function.width(), cost_function.height());
@@ -256,7 +202,7 @@ pair<int, int> sim_anneal(pair<unsigned, unsigned> boundary,
 
     if ((best_width > best_height) != (width > height)) {
         tree.flip();
-        swap(best_width, best_height);
+        std::swap(best_width, best_height);
     }
 
     return make_pair(best_width, best_height);
