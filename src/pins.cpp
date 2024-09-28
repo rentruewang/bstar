@@ -110,7 +110,7 @@ string& pin::name() {
 }
 
 void pin::rotate() {
-    assert(area_nonzero());
+    assert(area());
     std::swap(w_, h_);
 }
 
@@ -154,8 +154,8 @@ void pin::rm_right() {
     right(-1);
 }
 
-bool pin::area_nonzero() const {
-    return width() && height();
+int pin::area() const {
+    return width() * height();
 }
 
 bool pin::leaf() const {
@@ -166,7 +166,7 @@ void pin::filter_area_nonzero(vector<pin>& pin_list,
                               vector<size_t>& block_list) {
     assert(block_list.size() == 0);
     for (size_t i = 0; i < pin_list.size(); ++i) {
-        if (pin_list[i].area_nonzero()) {
+        if (pin_list[i].area()) {
             block_list.push_back(i);
         }
     }

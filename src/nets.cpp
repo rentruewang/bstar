@@ -28,7 +28,7 @@ size_t net::at(size_t index) const {
 }
 
 static pair<size_t, size_t> get_center(const pin& pin) {
-    if (!pin.area_nonzero()) {
+    if (!pin.area()) {
         assert(pin.width() == 0);
         assert(pin.height() == 0);
     }
@@ -45,35 +45,29 @@ size_t net::hpwl() const {
     max_w = min_w = center.first;
     max_h = min_h = center.second;
 
-    size_t i, x, y;
+    size_t i, w, h;
     bool halt;
     for (i = 1, halt = false; i < connected_pins_.size(); ++i) {
         const pin& pin = pin_list[connected_pins_[i]];
-        if (!pin.area_nonzero()) {
+        if (!pin.area()) {
             halt = true;
         }
+
         if (halt) {
-            x = pin.x();
-            y = pin.y();
+            w = pin.x();
+            h = pin.y();
             assert(pin.width() == 0);
             assert(pin.height() == 0);
         } else {
             center = get_center(pin_list[connected_pins_[i]]);
-            x = center.first;
-            y = center.second;
+            w = center.first;
+            h = center.second;
         }
-        if (max_w < x) {
-            max_w = x;
-        }
-        if (min_w > x) {
-            min_w = x;
-        }
-        if (max_h < y) {
-            max_h = y;
-        }
-        if (min_h > y) {
-            min_h = y;
-        }
+
+        max_w = max_w >= w ? max_w : w;
+        min_w = min_w <= w ? min_w : w;
+        max_h = max_h >= h ? max_h : h;
+        min_h = min_h <= h ? min_h : h;
     }
     assert(max_w >= min_w);
     assert(max_h >= min_h);

@@ -4,6 +4,8 @@
 #include <cassert>
 #include <cstdlib>
 #include <deque>
+#include <iterator>
+#include <utility>
 
 #include "boundaries.hpp"
 
@@ -33,13 +35,8 @@ b_star::b_star(vector<pin>& pin_list) : pin_list_(pin_list) {
     sort(index_list.rbegin(), index_list.rend(),
          [&](size_t a, size_t b) -> bool {
              const auto &pin_a = pin_list[a], &pin_b = pin_list[b];
-             if (pin_a.width() < pin_b.width()) {
-                 return true;
-             }
-             if (pin_a.width() > pin_b.width()) {
-                 return false;
-             }
-             return pin_a.height() < pin_b.height();
+             return make_pair(pin_a.width(), pin_a.height()) <
+                    make_pair(pin_b.width(), pin_b.height());
          });
 
     // * heap update
@@ -47,19 +44,22 @@ b_star::b_star(vector<pin>& pin_list) : pin_list_(pin_list) {
         const size_t l = left_child(index), r = right_child(index);
         size_t self = index_list[index];
         pin& pin = pin_list[self];
-        assert(pin.area_nonzero());
 
+        assert(pin.area());
         assert(pin.left() < 0);
         assert(pin.right() < 0);
+
         if (r == index_list.size()) {
             pin.left(index_list[l]);
-        } else if (r < index_list.size()) {
+        }
+
+        if (r < index_list.size()) {
             pin.left(index_list[l]);
             pin.right(index_list[r]);
         }
     }
 
-    this->nodes_ = std::move(index_list);
+    nodes_ = std::move(index_list);
 }
 
 size_t b_star::root() const {

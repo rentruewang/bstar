@@ -53,9 +53,11 @@ class pin {
     void rm_left();
     void rm_right();
 
-    bool area_nonzero() const;
+    /// Compute the area of the pin.
+    int area() const;
     bool leaf() const;
 
+    /// Select the pins that have non zero area.
     static void filter_area_nonzero(std::vector<pin>& pin_list,
                                     std::vector<size_t>& block_list);
 

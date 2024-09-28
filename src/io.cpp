@@ -48,11 +48,11 @@ pair<size_t, size_t> read_pin_file(ifstream& file,
     assert(pin_list.size() == num_blocks + num_terminals);
 
     for (int i = 0; i < (int)num_blocks; ++i) {
-        assert(pin_list[i].area_nonzero());
+        assert(pin_list[i].area());
     }
 
     for (int i = num_blocks; (size_t)i < num_blocks + num_terminals; ++i) {
-        assert(!pin_list[i].area_nonzero());
+        assert(!pin_list[i].area());
     }
 
     return make_pair(out_width, out_height);
@@ -80,8 +80,8 @@ void read_net_file(ifstream& file,
             connected.push_back(pin_map.at(pin_name));
         }
         sort(connected.rbegin(), connected.rend(), [&](int i, int j) {
-            return pin_list[connected[i]].area_nonzero() <
-                   pin_list[connected[j]].area_nonzero();
+            return (pin_list[connected[i]].area() != 0) <
+                   (pin_list[connected[j]].area() != 0);
         });
         assert(connected.size() == num_degree);
         net_list.emplace_back(std::move(connected), pin_list);
@@ -112,7 +112,7 @@ void save_file(ofstream& file,
         const pin& pin = pin_list[i];
         const string& name = pin.name();
 
-        if (pin.area_nonzero()) {
+        if (pin.area()) {
             const int x = pin.x(), y = pin.y(), w = pin.width(),
                       h = pin.height();
 
