@@ -2,30 +2,30 @@
 
 #include <cstdlib>
 
-mutation::mutation(b_star& tree) noexcept : tree_(tree) {}
+Mutator::Mutator(BStar& tree) noexcept : tree_(tree) {}
 
-void mutation::random() {
+void Mutator::random() {
     setup_random();
     mutate();
 }
 
-void mutation::revert() {
+void Mutator::revert() {
     mutate();
 }
 
-permuter::permuter(b_star& tree) noexcept : mutation(tree), idx_(0) {}
+Permuter::Permuter(BStar& tree) noexcept : Mutator(tree), idx_(0) {}
 
-void permuter::setup_random() {
+void Permuter::setup_random() {
     idx_ = rand() % tree_.nodes().size();
 }
 
-void permuter::mutate() {
+void Permuter::mutate() {
     tree_.pin_list()[tree_.nodes()[idx_]].rotate();
 }
 
-swapper::swapper(b_star& tree) noexcept : mutation(tree), i_(0), j_(0) {}
+Swapper::Swapper(BStar& tree) noexcept : Mutator(tree), i_(0), j_(0) {}
 
-void swapper::setup_random() {
+void Swapper::setup_random() {
     i_ = (rand() % (tree_.nodes().size() - 1)) + 1;
     j_ = (rand() % (tree_.nodes().size() - 2)) + 1;
 
@@ -34,19 +34,19 @@ void swapper::setup_random() {
     }
 }
 
-void swapper::mutate() {
+void Swapper::mutate() {
     auto& plist = tree_.pin_list();
-    pin &pin_i = plist[tree_.nodes()[i_]], &pin_j = plist[tree_.nodes()[j_]];
+    Pin &pin_i = plist[tree_.nodes()[i_]], &pin_j = plist[tree_.nodes()[j_]];
 
     std::swap(pin_i.width(), pin_j.width());
     std::swap(pin_i.height(), pin_j.height());
     std::swap(pin_i.name(), pin_j.name());
 }
 
-delete_inserter::delete_inserter(b_star& tree) noexcept
-    : mutation(tree), from_(0), to_(0), from_side_(false), to_side_(false) {}
+DeleteInserter::DeleteInserter(BStar& tree) noexcept
+    : Mutator(tree), from_(0), to_(0), from_side_(false), to_side_(false) {}
 
-void delete_inserter::setup_random() {
+void DeleteInserter::setup_random() {
     int root;
     bool side;
 
@@ -63,13 +63,13 @@ void delete_inserter::setup_random() {
     } while (plist[root].leaf());
 
     while (true) {
-        const pin& root_pin = plist[root];
+        const Pin& root_pin = plist[root];
         int left = root_pin.left(), right = root_pin.right();
 
         bool both_fine = (left >= 0) && (right >= 0);
 
         if (left < 0 || (both_fine && (rand() % 2))) {
-            const pin& right_node = plist[right];
+            const Pin& right_node = plist[right];
 
             if (right_node.leaf()) {
                 side = true;
@@ -78,7 +78,7 @@ void delete_inserter::setup_random() {
 
             root = right;
         } else {
-            const pin& left_node = plist[left];
+            const Pin& left_node = plist[left];
 
             if (left_node.leaf()) {
                 side = false;
@@ -99,7 +99,7 @@ void delete_inserter::setup_random() {
     } while (plist[root].leaf());
 
     while (true) {
-        const pin& p = plist[root];
+        const Pin& p = plist[root];
 
         if (root == from && from_side) {
             if (next = p.left(); next < 0) {
@@ -133,10 +133,10 @@ void delete_inserter::setup_random() {
     to_side_ = side;
 }
 
-void delete_inserter::mutate() {
+void DeleteInserter::mutate() {
     auto& plist = tree_.pin_list();
-    pin& from_pin = plist[from_];
-    pin& to_pin = plist[to_];
+    Pin& from_pin = plist[from_];
+    Pin& to_pin = plist[to_];
 
     int target;
 
@@ -155,13 +155,13 @@ void delete_inserter::mutate() {
     }
 }
 
-mirrorer::mirrorer(b_star& tree) noexcept : mutation(tree), i_(0) {}
+Mirrorer::Mirrorer(BStar& tree) noexcept : Mutator(tree), i_(0) {}
 
-void mirrorer::setup_random() {
+void Mirrorer::setup_random() {
     i_ = rand() % tree_.pin_list().size();
 }
 
-void mirrorer::mutate() {
-    pin& pin = tree_.pin_list()[i_];
+void Mirrorer::mutate() {
+    Pin& pin = tree_.pin_list()[i_];
     std::swap(pin.left(), pin.right());
 }

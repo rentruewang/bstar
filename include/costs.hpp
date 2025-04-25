@@ -2,10 +2,10 @@
 
 #include <cstddef>
 
-class cost {
+class Cost {
    public:
-    cost();
-    cost(double init_area,
+    Cost();
+    Cost(double init_area,
          double init_hpwl,
          double init_alpha,
          double init_ratio);

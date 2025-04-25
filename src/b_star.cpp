@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cstdlib>
 #include <deque>
-#include <iterator>
 #include <utility>
 
 #include "boundaries.hpp"
@@ -19,13 +18,13 @@ static size_t right_child(size_t index) {
     return (index << 1) + 2;
 }
 
-b_star::b_star(vector<pin>& pin_list) : pin_list_(pin_list) {
+BStar::BStar(vector<Pin>& pin_list) : pin_list_(pin_list) {
     auto index_list = vector<size_t>();
 
-    pin::filter_area_nonzero(pin_list, index_list);
+    Pin::filter_area_nonzero(pin_list, index_list);
 
     for (size_t idx = 0; idx < index_list.size(); ++idx) {
-        pin& p = pin_list[index_list[idx]];
+        Pin& p = pin_list[index_list[idx]];
         if (p.height() > p.width()) {
             p.rotate();
         }
@@ -43,7 +42,7 @@ b_star::b_star(vector<pin>& pin_list) : pin_list_(pin_list) {
     for (size_t index = 0; index < index_list.size(); ++index) {
         const size_t l = left_child(index), r = right_child(index);
         size_t self = index_list[index];
-        pin& pin = pin_list[self];
+        Pin& pin = pin_list[self];
 
         assert(pin.area());
         assert(pin.left() < 0);
@@ -62,28 +61,28 @@ b_star::b_star(vector<pin>& pin_list) : pin_list_(pin_list) {
     nodes_ = std::move(index_list);
 }
 
-size_t b_star::root() const {
+size_t BStar::root() const {
     return nodes_[0];
 }
 
-vector<pin>& b_star::pin_list() {
+vector<Pin>& BStar::pin_list() {
     return pin_list_;
 }
 
-const vector<pin>& b_star::pin_list() const {
+const vector<Pin>& BStar::pin_list() const {
     return pin_list_;
 }
 
-vector<size_t>& b_star::nodes() {
+vector<size_t>& BStar::nodes() {
     return nodes_;
 }
 
-const vector<size_t>& b_star::nodes() const {
+const vector<size_t>& BStar::nodes() const {
     return nodes_;
 }
 
-static void remove_overlap(pin& pin,
-                           deque<boundary>& contour,
+static void remove_overlap(Pin& pin,
+                           deque<Boundary>& contour,
                            const size_t index) {
     if (pin.x() >= contour[contour.size() - 1].right()) {
         pin.y() = 0;
@@ -119,13 +118,13 @@ static void remove_overlap(pin& pin,
     pin.y() = max;
 }
 
-static void update_left(vector<pin>& pin_list,
+static void update_left(vector<Pin>& pin_list,
                         size_t root,
                         size_t left,
-                        deque<boundary>& contour,
+                        deque<Boundary>& contour,
                         size_t affected) {
-    const pin& root_node = pin_list[root];
-    pin& left_node = pin_list[left];
+    const Pin& root_node = pin_list[root];
+    Pin& left_node = pin_list[left];
 
     assert(affected < contour.size());
 
@@ -135,18 +134,18 @@ static void update_left(vector<pin>& pin_list,
 
     remove_overlap(left_node, contour, index);
 
-    contour.insert(contour.begin() + index, boundary(left_node));
+    contour.insert(contour.begin() + index, Boundary(left_node));
 
     assert(index < contour.size());
 }
 
-static void update_right(vector<pin>& pin_list,
+static void update_right(vector<Pin>& pin_list,
                          size_t root,
                          size_t right,
-                         deque<boundary>& contour,
+                         deque<Boundary>& contour,
                          size_t affected) {
-    const pin& root_node = pin_list[root];
-    pin& right_node = pin_list[right];
+    const Pin& root_node = pin_list[root];
+    Pin& right_node = pin_list[right];
 
     assert(affected < contour.size());
 
@@ -156,18 +155,18 @@ static void update_right(vector<pin>& pin_list,
 
     remove_overlap(right_node, contour, index);
 
-    contour.insert(contour.begin() + index, boundary(right_node));
+    contour.insert(contour.begin() + index, Boundary(right_node));
     assert(index < contour.size());
 }
 
-static void update_recursive(vector<pin>& pin_list,
+static void update_recursive(vector<Pin>& pin_list,
                              size_t root,
-                             deque<boundary>& contour,
+                             deque<Boundary>& contour,
                              size_t affected) {
-    const pin& root_node = pin_list[root];
+    const Pin& root_node = pin_list[root];
 
     auto& bnd = contour[affected];
-    assert(bnd == boundary(root_node));
+    assert(bnd == Boundary(root_node));
 
     int left = root_node.left(), right = root_node.right();
 
@@ -182,18 +181,18 @@ static void update_recursive(vector<pin>& pin_list,
     }
 }
 
-pair<int, int> b_star::update() const {
+pair<int, int> BStar::update() const {
     auto& pin_list = pin_list_;
-    auto contour = deque<boundary>();
+    auto contour = deque<Boundary>();
     int r = root();
-    pin& root_node = pin_list[r];
+    Pin& root_node = pin_list[r];
     root_node.x() = root_node.y() = 0;
     contour.emplace_back(root_node);
     update_recursive(pin_list, r, contour, 0);
 
     int X, Y, i;
     for (i = X = Y = 0; (size_t)i < contour.size(); ++i) {
-        const boundary& bnd = contour[i];
+        const Boundary& bnd = contour[i];
         if (Y < bnd.top())
             Y = bnd.top();
 
@@ -203,8 +202,8 @@ pair<int, int> b_star::update() const {
     return make_pair(X, Y);
 }
 
-static void flip_recursive(size_t root, vector<pin>& pin_list) {
-    pin& pin = pin_list[root];
+static void flip_recursive(size_t root, vector<Pin>& pin_list) {
+    Pin& pin = pin_list[root];
     swap(pin.x(), pin.y());
     swap(pin.width(), pin.height());
     const int left = pin.left(), right = pin.right();
@@ -216,6 +215,6 @@ static void flip_recursive(size_t root, vector<pin>& pin_list) {
     }
 }
 
-void b_star::flip() {
+void BStar::flip() {
     flip_recursive(root(), pin_list());
 }

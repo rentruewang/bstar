@@ -32,8 +32,8 @@ int main(int, char const* argv[]) {
     printf("alpha = %lf\n", alpha);
 
     unordered_map<string, size_t> pin_map;
-    vector<pin> pin_list;
-    vector<net> net_list;
+    vector<Pin> pin_list;
+    vector<Net> net_list;
 
     ifstream pin_file{argv[2]};
     ifstream net_file{argv[3]};
@@ -49,7 +49,7 @@ int main(int, char const* argv[]) {
     printf("blocks = %lu, nets = %lu, dimension= (%lu, %lu)\n", pin_map.size(),
            net_list.size(), width, height);
 
-    b_star tree{pin_list};
+    BStar tree{pin_list};
 
     auto floorplan{sim_anneal(dimension, tree, pin_list, net_list, iter_info,
                               num_blocks, episodes, burning_stage, alpha, ratio,

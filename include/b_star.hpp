@@ -5,14 +5,14 @@
 
 #include "pins.hpp"
 
-class b_star {
+class BStar {
    public:
-    b_star(std::vector<pin>& plist);
+    BStar(std::vector<Pin>& plist);
 
     size_t root() const;
 
-    std::vector<pin>& pin_list();
-    const std::vector<pin>& pin_list() const;
+    std::vector<Pin>& pin_list();
+    const std::vector<Pin>& pin_list() const;
 
     std::vector<size_t>& nodes();
     const std::vector<size_t>& nodes() const;
@@ -23,5 +23,5 @@ class b_star {
 
    private:
     std::vector<size_t> nodes_;
-    std::vector<pin>& pin_list_;
+    std::vector<Pin>& pin_list_;
 };

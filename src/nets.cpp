@@ -5,29 +5,29 @@
 
 using namespace std;
 
-net::net() : connected_pins_(vector<size_t>()), all_pins_(nullptr) {}
+Net::Net() : connected_pins_(vector<size_t>()), all_pins_(nullptr) {}
 
-net::net(net&& net)
+Net::Net(Net&& net)
     : connected_pins_(std::move(net.connected_pins_)),
       all_pins_(net.all_pins_) {
     net.all_pins_ = nullptr;
 }
 
-net::net(vector<size_t>&& conn, const vector<pin>& all_pins_)
+Net::Net(vector<size_t>&& conn, const vector<Pin>& all_pins_)
     : connected_pins_(std::move(conn)), all_pins_(&all_pins_) {}
 
-net& net::operator=(net&& net) {
+Net& Net::operator=(Net&& net) {
     connected_pins_ = std::move(net.connected_pins_);
     all_pins_ = net.all_pins_;
     net.all_pins_ = nullptr;
     return *this;
 }
 
-size_t net::at(size_t index) const {
+size_t Net::at(size_t index) const {
     return this->connected_pins_.at(index);
 }
 
-static pair<size_t, size_t> get_center(const pin& pin) {
+static pair<size_t, size_t> get_center(const Pin& pin) {
     if (!pin.area()) {
         assert(pin.width() == 0);
         assert(pin.height() == 0);
@@ -36,7 +36,7 @@ static pair<size_t, size_t> get_center(const pin& pin) {
                      pin.y() + (pin.height() >> 1));
 }
 
-size_t net::hpwl() const {
+size_t Net::hpwl() const {
     const auto& pin_list = *all_pins_;
 
     size_t max_w, min_w, max_h, min_h;
@@ -48,7 +48,7 @@ size_t net::hpwl() const {
     size_t i, w, h;
     bool halt;
     for (i = 1, halt = false; i < connected_pins_.size(); ++i) {
-        const pin& pin = pin_list[connected_pins_[i]];
+        const Pin& pin = pin_list[connected_pins_[i]];
         if (!pin.area()) {
             halt = true;
         }

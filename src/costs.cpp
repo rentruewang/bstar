@@ -6,9 +6,9 @@
 
 using namespace std;
 
-cost::cost() : area_(1.), hpwl_(1.), alpha_(.5) {}
+Cost::Cost() : area_(1.), hpwl_(1.), alpha_(.5) {}
 
-cost::cost(double init_area,
+Cost::Cost(double init_area,
            double init_hpwl,
            double init_alpha,
            double aspect_ratio)
@@ -23,59 +23,59 @@ cost::cost(double init_area,
     assert(aspect_ratio >= 0. && aspect_ratio <= 1.);
 }
 
-double cost::area() const {
+double Cost::area() const {
     return area_;
 }
 
-double cost::hpwl() const {
+double Cost::hpwl() const {
     return hpwl_;
 }
 
-double cost::alpha() const {
+double Cost::alpha() const {
     return alpha_;
 }
 
-double cost::width() const {
+double Cost::width() const {
     return width_;
 }
 
-double cost::height() const {
+double Cost::height() const {
     return height_;
 }
 
-void cost::area(double a) {
+void Cost::area(double a) {
     area_ = a;
 }
 
-void cost::hpwl(double h) {
+void Cost::hpwl(double h) {
     hpwl_ = h;
 }
 
-void cost::alpha(double a) {
+void Cost::alpha(double a) {
     alpha_ = a;
 }
 
-void cost::width(double w) {
+void Cost::width(double w) {
     width_ = w;
 }
 
-void cost::height(double h) {
+void Cost::height(double h) {
     height_ = h;
 }
 
-double& cost::alpha() {
+double& Cost::alpha() {
     return alpha_;
 }
 
-double& cost::width() {
+double& Cost::width() {
     return width_;
 }
 
-double& cost::height() {
+double& Cost::height() {
     return height_;
 }
 
-void cost::rotate() {
+void Cost::rotate() {
     swap(width_, height_);
 }
 
@@ -93,19 +93,19 @@ static void update(double& reference, double target, size_t rounds) {
     reference = remaining * reference + coeff * target;
 }
 
-void cost::alpha(bool up, size_t rounds) {
+void Cost::alpha(bool up, size_t rounds) {
     update(alpha_, (double)up, rounds);
 }
 
-void cost::width(bool up, size_t rounds) {
+void Cost::width(bool up, size_t rounds) {
     update(width_, ((double)up) / 2., rounds);
 }
 
-void cost::height(bool up, size_t rounds) {
+void Cost::height(bool up, size_t rounds) {
     update(height_, ((double)up) / 2., rounds);
 }
 
-double cost::operator()(size_t x,
+double Cost::operator()(size_t x,
                         size_t xn,
                         size_t y,
                         size_t yn,
@@ -124,7 +124,7 @@ double cost::operator()(size_t x,
     return value;
 }
 
-double cost::operator()(size_t x,
+double Cost::operator()(size_t x,
                         size_t xn,
                         size_t y,
                         size_t yn,

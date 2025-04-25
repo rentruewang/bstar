@@ -4,15 +4,15 @@
 #include <utility>
 #include <vector>
 
-class pin {
+class Pin {
    public:
-    pin();
-    pin(const pin& pin);
-    pin(pin&& pin);
-    pin(size_t i, size_t j, bool b, const std::string& n);
+    Pin();
+    Pin(const Pin& pin);
+    Pin(Pin&& pin);
+    Pin(size_t i, size_t j, bool b, const std::string& n);
 
-    pin& operator=(const pin& pin);
-    pin& operator=(pin&& pin);
+    Pin& operator=(const Pin& pin);
+    Pin& operator=(Pin&& pin);
 
     void reset();
 
@@ -58,7 +58,7 @@ class pin {
     bool leaf() const;
 
     /// Select the pins that have non zero area.
-    static void filter_area_nonzero(std::vector<pin>& pin_list,
+    static void filter_area_nonzero(std::vector<Pin>& pin_list,
                                     std::vector<size_t>& block_list);
 
    private:

@@ -2,16 +2,16 @@
 
 #include "pins.hpp"
 
-class boundary {
+class Boundary {
    public:
-    boundary(int r, int y);
-    boundary(const pin& pin);
-    boundary(const boundary& bnd);
+    Boundary(int r, int y);
+    Boundary(const Pin& pin);
+    Boundary(const Boundary& bnd);
 
-    boundary& operator=(const boundary& bnd);
-    boundary& operator=(boundary&& bnd);
+    Boundary& operator=(const Boundary& bnd);
+    Boundary& operator=(Boundary&& bnd);
 
-    bool operator==(const boundary& bnd) const;
+    bool operator==(const Boundary& bnd) const;
 
     int right() const;
     int top() const;

@@ -10,7 +10,7 @@
 using namespace std;
 
 pair<size_t, size_t> read_pin_file(ifstream& file,
-                                   vector<pin>& pin_list,
+                                   vector<Pin>& pin_list,
                                    unordered_map<string, size_t>& pin_map,
                                    size_t& num_blocks) {
     auto buffer = string();
@@ -59,8 +59,8 @@ pair<size_t, size_t> read_pin_file(ifstream& file,
 }
 
 void read_net_file(ifstream& file,
-                   const vector<pin>& pin_list,
-                   vector<net>& net_list,
+                   const vector<Pin>& pin_list,
+                   vector<Net>& net_list,
                    const unordered_map<string, size_t>& pin_map) {
     auto buffer = string();
 
@@ -93,8 +93,8 @@ void save_file(ofstream& file,
                time_t start_time,
                double alpha,
                pair<int, int> dimension,
-               const vector<pin>& pin_list,
-               const vector<net>& net_list) {
+               const vector<Pin>& pin_list,
+               const vector<Net>& net_list) {
     const size_t size = pin_list.size();
 
     const size_t width = dimension.first, height = dimension.second;
@@ -109,7 +109,7 @@ void save_file(ofstream& file,
          << difftime(time(NULL), start_time) << "\n";
 
     for (size_t i = 0; i < size; ++i) {
-        const pin& pin = pin_list[i];
+        const Pin& pin = pin_list[i];
         const string& name = pin.name();
 
         if (pin.area()) {

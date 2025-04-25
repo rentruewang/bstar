@@ -2,10 +2,10 @@
 
 #include "b_star.hpp"
 
-class mutation {
+class Mutator {
    public:
-    mutation(b_star& tree) noexcept;
-    virtual ~mutation() {}
+    Mutator(BStar& tree) noexcept;
+    virtual ~Mutator() {}
 
     void random();
     void revert();
@@ -14,12 +14,12 @@ class mutation {
     virtual void mutate() = 0;
 
    protected:
-    b_star& tree_;
+    BStar& tree_;
 };
 
-class permuter final : public mutation {
+class Permuter final : public Mutator {
    public:
-    permuter(b_star& tree) noexcept;
+    Permuter(BStar& tree) noexcept;
 
     void setup_random();
     void mutate();
@@ -28,9 +28,9 @@ class permuter final : public mutation {
     size_t idx_;
 };
 
-class swapper final : public mutation {
+class Swapper final : public Mutator {
    public:
-    swapper(b_star& tree) noexcept;
+    Swapper(BStar& tree) noexcept;
 
     void setup_random();
     void mutate();
@@ -39,9 +39,9 @@ class swapper final : public mutation {
     size_t i_, j_;
 };
 
-class delete_inserter final : public mutation {
+class DeleteInserter final : public Mutator {
    public:
-    delete_inserter(b_star& tree) noexcept;
+    DeleteInserter(BStar& tree) noexcept;
 
     void setup_random();
     void mutate();
@@ -51,9 +51,9 @@ class delete_inserter final : public mutation {
     bool from_side_, to_side_;
 };
 
-class mirrorer final : public mutation {
+class Mirrorer final : public Mutator {
    public:
-    mirrorer(b_star& tree) noexcept;
+    Mirrorer(BStar& tree) noexcept;
 
     void setup_random();
     void mutate();

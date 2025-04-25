@@ -14,10 +14,10 @@ size_t total_area(const pair<int, int> dim) {
     return (size_t)dim.first * (size_t)dim.second;
 }
 
-size_t total_hpwl(const vector<net>& net_list) {
+size_t total_hpwl(const vector<Net>& net_list) {
     size_t idx, hpwl;
     for (idx = hpwl = 0; idx < net_list.size(); ++idx) {
-        const net& net = net_list[idx];
+        const Net& net = net_list[idx];
         hpwl += net.hpwl();
     }
     return hpwl;
@@ -27,42 +27,42 @@ double total_cost(const double area, const double hpwl, const double alpha) {
     return alpha * area + (1 - alpha) * hpwl;
 }
 
-static void backup(const vector<pin>& pin_list,
-                   vector<pin>& best,
+static void backup(const vector<Pin>& pin_list,
+                   vector<Pin>& best,
                    const size_t size) {
-    best = vector<pin>(pin_list.begin(), pin_list.begin() + size);
+    best = vector<Pin>(pin_list.begin(), pin_list.begin() + size);
 }
 
-static void restore(vector<pin>& pin_list, const vector<pin>& best) {
+static void restore(vector<Pin>& pin_list, const vector<Pin>& best) {
     copy(best.begin(), best.end(), pin_list.begin());
 }
 
-enum class mutation_type { delete_insert, permute, swap, mirror };
+enum class MutType { DELETE_INSERT, PERMUTE, SWAP, MIRROR };
 
-static mutation_type random_cdf(double a, double b, double c) {
+static MutType random_cdf(double a, double b, double c) {
     constexpr double rand_range = RAND_MAX + 1.;
 
     double rand_double = (double)rand() / rand_range;
 
     if (rand_double < a) {
-        return mutation_type::delete_insert;
+        return MutType::DELETE_INSERT;
     }
 
     if (rand_double < b) {
-        return mutation_type::permute;
+        return MutType::PERMUTE;
     }
 
     if (rand_double < c) {
-        return mutation_type::swap;
+        return MutType::SWAP;
     }
 
-    return mutation_type::mirror;
+    return MutType::MIRROR;
 }
 
 pair<int, int> sim_anneal(pair<size_t, size_t> boundary,
-                          b_star& tree,
-                          vector<pin>& pin_list,
-                          const vector<net>& net_list,
+                          BStar& tree,
+                          vector<Pin>& pin_list,
+                          const vector<Net>& net_list,
                           pair<size_t, size_t> iter_info,
                           size_t num_blocks,
                           size_t episodes,
@@ -77,10 +77,10 @@ pair<int, int> sim_anneal(pair<size_t, size_t> boundary,
     const size_t net_upper_bound = (width + height) * net_list.size();
 
     // Setup the different strategies.
-    permuter permute{tree};
-    swapper swap{tree};
-    delete_inserter delete_insert{tree};
-    mirrorer mirror{tree};
+    Permuter permute{tree};
+    Swapper swap{tree};
+    DeleteInserter delete_insert{tree};
+    Mirrorer mirror{tree};
 
     auto initial = tree.update();
 
@@ -90,10 +90,10 @@ pair<int, int> sim_anneal(pair<size_t, size_t> boundary,
     size_t init_hpwl = total_hpwl(net_list);
     double init_temp = 1. / log(1. / P);
 
-    auto cost_func = cost{static_cast<double>(init_width * init_height),
+    auto cost_func = Cost{static_cast<double>(init_width * init_height),
                           static_cast<double>(init_hpwl), alpha, ratio};
 
-    vector<pin> best_solution, best_accepted_solution;
+    vector<Pin> best_solution, best_accepted_solution;
 
     double best_cost = cost_func(init_width, width, init_height, height,
                                  init_hpwl, net_upper_bound, false);
@@ -119,18 +119,18 @@ pair<int, int> sim_anneal(pair<size_t, size_t> boundary,
              idx < episodes; ++idx) {
             score_rdi = score_rp = score_rs = score_rm = 0;
 
-            mutation* strategy = nullptr;
+            Mutator* strategy = nullptr;
             switch (random_cdf(rdi_rp, rp_rs, rs_rm)) {
-                case mutation_type::delete_insert:
+                case MutType::DELETE_INSERT:
                     strategy = &delete_insert;
                     break;
-                case mutation_type::permute:
+                case MutType::PERMUTE:
                     strategy = &permute;
                     break;
-                case mutation_type::swap:
+                case MutType::SWAP:
                     strategy = &swap;
                     break;
-                case mutation_type::mirror:
+                case MutType::MIRROR:
                     strategy = &mirror;
                     break;
             }

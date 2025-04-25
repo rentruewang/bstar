@@ -5,13 +5,13 @@
 #include "pins.hpp"
 
 // Read only Net
-class net {
+class Net {
    public:
-    net();
-    net(net&& net);
-    net(std::vector<size_t>&& conn, const std::vector<pin>& all_pins);
+    Net();
+    Net(Net&& net);
+    Net(std::vector<size_t>&& conn, const std::vector<Pin>& all_pins);
 
-    net& operator=(net&& net);
+    Net& operator=(Net&& net);
 
     size_t at(size_t index) const;
 
@@ -19,5 +19,5 @@ class net {
 
    private:
     std::vector<size_t> connected_pins_;
-    const std::vector<pin>* all_pins_;
+    const std::vector<Pin>* all_pins_;
 };

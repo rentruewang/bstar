@@ -6,9 +6,9 @@
 
 using namespace std;
 
-pin::pin() : x_(0), y_(0), w_(0), h_(0), l_(-1), r_(-1), name_("") {}
+Pin::Pin() : x_(0), y_(0), w_(0), h_(0), l_(-1), r_(-1), name_("") {}
 
-pin::pin(const pin& pin)
+Pin::Pin(const Pin& pin)
     : x_(pin.x_),
       y_(pin.y_),
       w_(pin.w_),
@@ -17,7 +17,7 @@ pin::pin(const pin& pin)
       r_(pin.r_),
       name_(pin.name_) {}
 
-pin::pin(pin&& pin)
+Pin::Pin(Pin&& pin)
     : x_(pin.x_),
       y_(pin.y_),
       w_(pin.w_),
@@ -26,7 +26,7 @@ pin::pin(pin&& pin)
       r_(pin.r_),
       name_(std::move(pin.name_)) {}
 
-pin::pin(size_t i, size_t j, bool b, const string& n)
+Pin::Pin(size_t i, size_t j, bool b, const string& n)
     : l_(-1), r_(-1), name_(n) {
     if (b) {
         x_ = y_ = 0;
@@ -39,7 +39,7 @@ pin::pin(size_t i, size_t j, bool b, const string& n)
     }
 }
 
-pin& pin::operator=(const pin& pin) {
+Pin& Pin::operator=(const Pin& pin) {
     x_ = pin.x_;
     y_ = pin.y_;
     w_ = pin.w_;
@@ -50,7 +50,7 @@ pin& pin::operator=(const pin& pin) {
     return *this;
 }
 
-pin& pin::operator=(pin&& pin) {
+Pin& Pin::operator=(Pin&& pin) {
     x_ = pin.x_;
     y_ = pin.y_;
     w_ = pin.w_;
@@ -61,108 +61,108 @@ pin& pin::operator=(pin&& pin) {
     return *this;
 }
 
-int pin::x() const {
+int Pin::x() const {
     return x_;
 }
 
-int pin::y() const {
+int Pin::y() const {
     return y_;
 }
 
-int& pin::x() {
+int& Pin::x() {
     return x_;
 }
 
-int& pin::y() {
+int& Pin::y() {
     return y_;
 }
 
-pair<int, int> pin::loc() const {
+pair<int, int> Pin::loc() const {
     return {x_, y_};
 }
 
-size_t pin::width() const {
+size_t Pin::width() const {
     return w_;
 }
 
-size_t pin::height() const {
+size_t Pin::height() const {
     return h_;
 }
 
-size_t& pin::width() {
+size_t& Pin::width() {
     return w_;
 }
 
-size_t& pin::height() {
+size_t& Pin::height() {
     return h_;
 }
 
-pair<size_t, size_t> pin::dim() const {
+pair<size_t, size_t> Pin::dim() const {
     return {w_, h_};
 }
 
-const string& pin::name() const {
+const string& Pin::name() const {
     return name_;
 }
 
-string& pin::name() {
+string& Pin::name() {
     return name_;
 }
 
-void pin::rotate() {
+void Pin::rotate() {
     assert(area());
     std::swap(w_, h_);
 }
 
-int pin::left() const {
+int Pin::left() const {
     return l_;
 }
 
-int pin::right() const {
+int Pin::right() const {
     return r_;
 }
 
-int& pin::left() {
+int& Pin::left() {
     return l_;
 }
 
-int& pin::right() {
+int& Pin::right() {
     return r_;
 }
 
-bool pin::has_left() const {
+bool Pin::has_left() const {
     return left() >= 0;
 }
 
-bool pin::has_right() const {
+bool Pin::has_right() const {
     return right() >= 0;
 }
 
-void pin::left(int l) {
+void Pin::left(int l) {
     l_ = l;
 }
 
-void pin::right(int r) {
+void Pin::right(int r) {
     r_ = r;
 }
 
-void pin::rm_left() {
+void Pin::rm_left() {
     left(-1);
 }
 
-void pin::rm_right() {
+void Pin::rm_right() {
     right(-1);
 }
 
-int pin::area() const {
+int Pin::area() const {
     return width() * height();
 }
 
-bool pin::leaf() const {
+bool Pin::leaf() const {
     return (l_ < 0) && (r_ < 0);
 }
 
-void pin::filter_area_nonzero(vector<pin>& pin_list,
+void Pin::filter_area_nonzero(vector<Pin>& pin_list,
                               vector<size_t>& block_list) {
     assert(block_list.size() == 0);
     for (size_t i = 0; i < pin_list.size(); ++i) {

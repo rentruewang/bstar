@@ -1,20 +1,20 @@
 #include "boundaries.hpp"
 
-boundary::boundary(int r, int y) : right_(r), top_(y) {}
+Boundary::Boundary(int r, int y) : right_(r), top_(y) {}
 
-boundary::boundary(const pin& pin)
+Boundary::Boundary(const Pin& pin)
     : right_(pin.x() + pin.width()), top_(pin.y() + pin.height()) {}
 
-boundary::boundary(const boundary& bnd) : right_(bnd.right_), top_(bnd.top_) {}
+Boundary::Boundary(const Boundary& bnd) : right_(bnd.right_), top_(bnd.top_) {}
 
-boundary& boundary::operator=(const boundary& bnd) {
+Boundary& Boundary::operator=(const Boundary& bnd) {
     right_ = bnd.right_;
     top_ = bnd.top_;
 
     return *this;
 }
 
-boundary& boundary::operator=(boundary&& bnd) {
+Boundary& Boundary::operator=(Boundary&& bnd) {
     right_ = bnd.right_;
     top_ = bnd.top_;
 
@@ -23,22 +23,22 @@ boundary& boundary::operator=(boundary&& bnd) {
     return *this;
 }
 
-bool boundary::operator==(const boundary& bnd) const {
+bool Boundary::operator==(const Boundary& bnd) const {
     return right_ == bnd.right_ && top_ == bnd.top_;
 }
 
-int boundary::right() const {
+int Boundary::right() const {
     return right_;
 }
 
-int boundary::top() const {
+int Boundary::top() const {
     return top_;
 }
 
-void boundary::right(int r) {
+void Boundary::right(int r) {
     this->right_ = r;
 }
 
-void boundary::top(int y) {
+void Boundary::top(int y) {
     this->top_ = y;
 }

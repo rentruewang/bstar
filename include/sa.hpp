@@ -8,14 +8,14 @@
 
 size_t total_area(const std::pair<int, int> dim);
 
-size_t total_hpwl(const std::vector<net>& net_list);
+size_t total_hpwl(const std::vector<Net>& net_list);
 
 double total_cost(const double area, const double hpwl, const double alpha);
 
 std::pair<int, int> sim_anneal(std::pair<size_t, size_t> boundary,
-                               b_star& tree,
-                               std::vector<pin>& pin_list,
-                               const std::vector<net>& net_list,
+                               BStar& tree,
+                               std::vector<Pin>& pin_list,
+                               const std::vector<Net>& net_list,
                                std::pair<size_t, size_t> iter_info,
                                size_t num_blocks,
                                size_t episodes,
