@@ -16,7 +16,7 @@ constexpr double init_prob = .999, constant = 3.;
 constexpr size_t iterations = 10000, interrupt = iterations / constant;
 constexpr auto iter_info{std::make_pair(iterations, interrupt)};
 constexpr size_t episodes = 1000, burning_stage = 100;
-constexpr double ratio = .5;
+constexpr double init_ratio = .5;
 
 int main(int, char const* argv[]) {
     using namespace std;
@@ -52,8 +52,8 @@ int main(int, char const* argv[]) {
     BStar tree{pin_list};
 
     auto floorplan{sim_anneal(dimension, tree, pin_list, net_list, iter_info,
-                              num_blocks, episodes, burning_stage, alpha, ratio,
-                              init_prob, constant)};
+                              num_blocks, episodes, burning_stage, alpha,
+                              init_ratio, init_prob, constant)};
 
     printf("result = (%d, %d)\n", floorplan.first, floorplan.second);
 
